@@ -1,4 +1,5 @@
 import urlparse
+import json
 
 import requests
 from requests_oauthlib import OAuth1
@@ -20,11 +21,15 @@ def get_request_token():
 
 def authorize():
     """ A complete OAuth authentication flow """
-    request_token, request_secret = get_request_token()
-    verifier = get_user_authorization(request_token)
-    access_token, access_secret = get_access_token(request_token,
-                                                   request_secret,
-                                                   verifier)
+    try:
+        access_token, access_secret = get_stored_credentials()
+    except IOError:
+        request_token, request_secret = get_request_token()
+        verifier = get_user_authorization(request_token)
+        access_token, access_secret = get_access_token(request_token,
+                                                       request_secret,
+                                                       verifier)
+        store_credentials(access_token, access_secret)
 
     oauth = OAuth1(CLIENT_KEY,
                    client_secret=CLIENT_SECRET,
@@ -57,3 +62,15 @@ def get_user_authorization(request_token):
     authorize_url = authorize_url.format(request_token=request_token)
     print 'Please go here and authorize: ' + authorize_url
     return raw_input('Please input the verifier: ')
+
+def store_credentials(access_token, access_secret):
+    """ Save our access credentials in a json file """
+    with open("access.json", "w") as f:
+        json.dump({"access_token": access_token,
+                   "access_secret": access_secret}, f)
+
+def get_stored_credentials():
+    """ Try to retrieve stored access credentials from a json file """
+    with open("access.json", "r") as f:
+        credentials = json.load(f)
+        return credentials["access_token"], credentials["access_secret"]
