@@ -31,6 +31,28 @@ def make_parser():
                               help="Content of your post - limit 140 chars!")
     return parser
 
+def get_timeline(auth):
+    """ Get the contents of your timeline """
+    get_timeline = requests.get(TIMELINE_URL, auth=auth)
+    timeline = json.dumps(get_timeline.json(), indent=2)
+    return timeline
+
+def make_tweet(update, auth):
+    """ Post an update to your twitter status """
+    post_tweet = requests.post(UPDATE_URL, params="status=" + update, auth=auth)
+    tweet = json.dumps(post_tweet.json(), indent=2)
+    return tweet
+
+def pretty_print(dump_file):
+    """Print the json formatted contents in a more human readable way
+
+    Print out only the screen name and tweet text from the input data.
+    """
+    pretty_output = json.loads(dump_file)
+    for item in pretty_output:
+        print item['user']['screen_name'], item['text']
+
+
 def main():
     """ Main function """
     auth = authorization.authorize()
@@ -48,14 +70,13 @@ def main():
 
     if command == "tweet":
         update = arguments.pop("update")
-        tweet = requests.post(UPDATE_URL, params="status=" + update, auth=auth)
-        logging.debug("Formed URL is: {!r}".format(tweet))
-        print json.dumps(tweet.json(), indent=4)
+        tweet = make_tweet(update, auth)
+        print tweet
 
 
     elif command == "timeline":
-        timeline = requests.get(TIMELINE_URL, auth=auth)
-        print json.dumps(timeline.json(), indent=4)
+        timeline = get_timeline(auth)
+        pretty_print(timeline)
 
 if __name__ == "__main__":
     main()
