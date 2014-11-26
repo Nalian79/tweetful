@@ -18,6 +18,11 @@ def make_parser():
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
+    # Subparser for the timeline command
+    logging.debug("Creating the timeline subparser")
+    timeline_parser = subparsers.add_parser("timeline",
+                                            help = "Get your timeline")
+
     # Subparser for the tweet command
     logging.debug("Creating the tweet subparser")
     tweet_parser = subparsers.add_parser("tweet",
@@ -25,10 +30,6 @@ def make_parser():
     tweet_parser.add_argument("update", 
                               help="Content of your post - limit 140 chars!")
     return parser
-
-def tweet(update):
-    """Post an update to a twitter timeline """
-    pass
 
 def main():
     """ Main function """
@@ -38,15 +39,23 @@ def main():
     logging.debug("All arguments are: {!r}".format(sys.argv[0:]))
     arguments = parser.parse_args(sys.argv[1:])
     logging.debug("After parsing arguments are: {!r}".format(arguments))
-    command = arguments.pop("command")
     arguments = vars(arguments)
     logging.debug("Arguments are now: {!r}".format(arguments))
+    command = arguments.pop("command")
+
 #    response = requests.get(TIMELINE_URL, auth=auth)
 #    print json.dumps(response.json(), indent=4)
 
     if command == "tweet":
-        pass
+        update = arguments.pop("update")
+        tweet = requests.post(UPDATE_URL, params="status=" + update, auth=auth)
+        logging.debug("Formed URL is: {!r}".format(tweet))
+        print json.dumps(tweet.json(), indent=4)
 
+
+    elif command == "timeline":
+        timeline = requests.get(TIMELINE_URL, auth=auth)
+        print json.dumps(timeline.json(), indent=4)
 
 if __name__ == "__main__":
     main()
