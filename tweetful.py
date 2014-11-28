@@ -49,7 +49,10 @@ def make_tweet(update, auth):
     """ Post an update to your twitter status """
     post_tweet = requests.post(UPDATE_URL, params="status=" + update, auth=auth)
     tweet = json.dumps(post_tweet.json(), indent=4)
-    return tweet
+    tweet = json.loads(tweet)
+    print "You tweeted: {}".format(tweet['text'])
+    print "As user: {}".format(tweet['user']['name'])
+#    return tweet
 
 def print_tweets(dump_file):
     """Print the json formatted contents in a more human readable way
@@ -87,7 +90,7 @@ def main():
     if command == "tweet":
         update = arguments.pop("update")
         tweet = make_tweet(update, auth)
-        print tweet
+#        print tweet
 
     elif command == "home":
         my_timeline = get_home_timeline(auth)
