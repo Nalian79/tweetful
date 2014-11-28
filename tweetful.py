@@ -103,14 +103,13 @@ def get_trends(geoloc, auth):
         print "Name: " + u"{}".format(trend['name'])
 
 def get_geoloc_choices(auth):
-    """ Get a list of available GeoLocations from Twitter"""
+    """ Get a list of available GeoLocations from Twitter """
     geoloc_url = GEOLOCS_URL
     get_geolocs = requests.get(geoloc_url, auth=auth)
     geoloc_list = json.dumps(get_geolocs.json(), indent=4)
     geoloc_list_of_dicts = json.loads(geoloc_list)
     for item in geoloc_list_of_dicts:
-        print u"Location: {}, id: {}, country code: {}".format(
-            item['name'], item['woeid'], item['countryCode'])
+        print u"Location: {!r}, id: {!r}".format(item['name'], item['woeid'])
 
 
 def main():
