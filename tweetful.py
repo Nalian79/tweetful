@@ -51,14 +51,18 @@ def make_tweet(update, auth):
     tweet = json.dumps(post_tweet.json(), indent=4)
     return tweet
 
-def print_screenname_tweet(dump_file):
+def print_tweets(dump_file):
     """Print the json formatted contents in a more human readable way
 
     Print out only the screen name and tweet text from the input data.
     """
     dict_output = json.loads(dump_file)
     for item in dict_output:
-        print item['user']['screen_name'], item['text']
+        if 'error' in dict_output:
+            print "You are not authorized to view that user's tweets."
+            break
+        else:
+            print item['user']['screen_name'], item['text']
 
 def get_user_timeline(screen_name, count, auth):
     """Get the twitter timeline of a specific user """
@@ -87,14 +91,13 @@ def main():
 
     elif command == "home":
         my_timeline = get_home_timeline(auth)
-        print_screenname_tweet(my_timeline)
+        print_tweets(my_timeline)
 
     elif command == "get":
         screen_name = arguments.pop("screen_name")
         count = arguments.pop("update_num")
         user_tl = get_user_timeline(screen_name, count, auth)
-#        print user_tl
-        print_screenname_tweet(user_tl)
+        print_tweets(user_tl)
 
 if __name__ == "__main__":
     main()
