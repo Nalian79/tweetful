@@ -32,11 +32,19 @@ def make_parser():
 
     # Subparser for getting a user's timeline
     logging.debug("Creating the get subparser")
-    get_parser = subparsers.add_parser("get",
+    get_parser = subparsers.add_parser("get_user",
                                           help="Get twitter data foruser")
     get_parser.add_argument("screen_name", help="Name of the twitter user")
     get_parser.add_argument("update_num", help="Number of posts for user",
                             nargs="?", default=5)
+
+    # Subparser for getting trends
+    logging.debug("Creating the trends subparser")
+    trend_parser = subparsers.add_parser("trends",
+                                         help="Gets trending topics from twitter")
+    trend_parser.add_argument("location", default=1, nargs="?",
+                              help="Location for top trends")
+
     return parser
 
 def get_home_timeline(auth):
@@ -75,6 +83,18 @@ def get_user_timeline(screen_name, count, auth):
     user_timeline = json.dumps(get_user_timeline.json(), indent=4)
     return user_timeline
 
+def get_trends(geoloc, auth):
+    """ Get the top trends by geo-location """
+    trend_url = TRENDING_URL
+    trend_url = trend_url.format(geoloc = geoloc)
+    get_trends = requests.get(trend_url, auth=auth)
+    get_trends_list = json.dumps(get_trends.json(), indent=4)
+    trends_dict = json.loads(get_trends_list)[0]
+    print "Trends " + u"{}".format(trends_dict['locations'])
+    for trend in trends_dict['trends']:
+        print "Search URL: " + u"{}".format(trend['url'])
+        print "Name: " + u"{}".format(trend['name'])
+
 def main():
     """ Main function """
     auth = authorization.authorize()
@@ -90,17 +110,20 @@ def main():
     if command == "tweet":
         update = arguments.pop("update")
         tweet = make_tweet(update, auth)
-#        print tweet
 
     elif command == "home":
         my_timeline = get_home_timeline(auth)
         print_tweets(my_timeline)
 
-    elif command == "get":
+    elif command == "get_user":
         screen_name = arguments.pop("screen_name")
         count = arguments.pop("update_num")
         user_tl = get_user_timeline(screen_name, count, auth)
         print_tweets(user_tl)
+
+    elif command == "trends":
+        geoloc = arguments.pop("location")
+        get_trends(geoloc, auth)
 
 if __name__ == "__main__":
     main()
