@@ -93,8 +93,8 @@ def main():
         screen_name = arguments.pop("screen_name")
         count = arguments.pop("update_num")
         user_tl = get_user_timeline(screen_name, count, auth)
-        print user_tl
-#        print_screenname_tweet(user_tl)
+#        print user_tl
+        print_screenname_tweet(user_tl)
 
 if __name__ == "__main__":
     main()

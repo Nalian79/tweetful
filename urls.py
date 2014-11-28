@@ -5,4 +5,4 @@ ACCESS_TOKEN_URL = API_URL + "/oauth/access_token"
 TIMELINE_URL = API_URL + "/1.1/statuses/home_timeline.json"
 UPDATE_URL = API_URL + "/1.1/statuses/update.json"
 SCREENNAME_URL = API_URL + \
-    "/1.1/statuses/user_timeline.json?={screen_name}=twitterapi&count={count}"
+    "/1.1/statuses/user_timeline.json?screen_name={screen_name}&count={count}"
