@@ -45,6 +45,11 @@ def make_parser():
     trend_parser.add_argument("location", default=1, nargs="?",
                               help="Location for top trends")
 
+    # Subparser for getting geo locations from twitter
+    logging.debug("Creating the geoloc subparser")
+    geoloc_parser = subparsers.add_parser("get_geoloc",
+                                          help="ID numbers for Geo Location lookups")
+
     return parser
 
 def get_home_timeline(auth):
@@ -86,14 +91,27 @@ def get_user_timeline(screen_name, count, auth):
 def get_trends(geoloc, auth):
     """ Get the top trends by geo-location """
     trend_url = TRENDING_URL
-    trend_url = trend_url.format(geoloc = geoloc)
+    trend_url = trend_url.format(geoloc=geoloc)
     get_trends = requests.get(trend_url, auth=auth)
     get_trends_list = json.dumps(get_trends.json(), indent=4)
     trends_dict = json.loads(get_trends_list)[0]
-    print "Trends " + u"{}".format(trends_dict['locations'])
+    loc_dict = trends_dict['locations']
+    for item in loc_dict:
+        print "Trends for location: " + "{}".format(item['name'])
     for trend in trends_dict['trends']:
         print "Search URL: " + u"{}".format(trend['url'])
         print "Name: " + u"{}".format(trend['name'])
+
+def get_geoloc_choices(auth):
+    """ Get a list of available GeoLocations from Twitter"""
+    geoloc_url = GEOLOCS_URL
+    get_geolocs = requests.get(geoloc_url, auth=auth)
+    geoloc_list = json.dumps(get_geolocs.json(), indent=4)
+    geoloc_list_of_dicts = json.loads(geoloc_list)
+    for item in geoloc_list_of_dicts:
+        print u"Location: {}, id: {}, country code: {}".format(
+            item['name'], item['woeid'], item['countryCode'])
+
 
 def main():
     """ Main function """
@@ -124,6 +142,9 @@ def main():
     elif command == "trends":
         geoloc = arguments.pop("location")
         get_trends(geoloc, auth)
+
+    elif command == "get_geoloc":
+        get_geoloc_choices(auth)
 
 if __name__ == "__main__":
     main()

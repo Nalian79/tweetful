@@ -7,3 +7,4 @@ UPDATE_URL = API_URL + "/1.1/statuses/update.json"
 SCREENNAME_URL = API_URL + \
     "/1.1/statuses/user_timeline.json?screen_name={screen_name}&count={count}"
 TRENDING_URL = API_URL + "/1.1/trends/place.json?id={geoloc}"
+GEOLOCS_URL = API_URL + "/1.1/trends/available.json"
