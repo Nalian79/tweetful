@@ -108,9 +108,11 @@ def get_geoloc_choices(auth):
     get_geolocs = requests.get(geoloc_url, auth=auth)
     geoloc_list = json.dumps(get_geolocs.json(), indent=4)
     geoloc_list_of_dicts = json.loads(geoloc_list)
+    geo_dict = {}
     for item in geoloc_list_of_dicts:
-        print u"Location: {!r}, id: {!r}".format(item['name'], item['woeid'])
-
+        geo_dict[item['name']] = item['woeid']
+#        print u"Location: {!r}, id: {!r}".format(item['name'], item['woeid'])
+    return geo_dict
 
 def main():
     """ Main function """
@@ -123,6 +125,7 @@ def main():
     arguments = vars(arguments)
     logging.debug("Arguments are now: {!r}".format(arguments))
     command = arguments.pop("command")
+    geo = get_geoloc_choices(auth)
 
     if command == "tweet":
         update = arguments.pop("update")
@@ -138,12 +141,18 @@ def main():
         user_tl = get_user_timeline(screen_name, count, auth)
         print_tweets(user_tl)
 
-    elif command == "trends":
-        geoloc = arguments.pop("location")
-        get_trends(geoloc, auth)
-
-    elif command == "get_geoloc":
-        get_geoloc_choices(auth)
+    elif command == "trends" or command == "get_geoloc":
+        geo = get_geoloc_choices(auth)
+        if command == "trends":
+            geo_arg = arguments.pop("location")
+            if geo_arg in geo:
+                get_trends(geo[geo_arg], auth)
+            else:
+                print "Please provide a valid geo location, check get_geoloc"
+#        get_trends(geoloc, auth)
+        elif command == "get_geoloc":
+            for key in geo:
+                print u"{!r} : {!r}".format(key, geo[key])
 
 if __name__ == "__main__":
     main()
